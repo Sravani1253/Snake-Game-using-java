@@ -1,1 +1,120 @@
+DICE CLASS
 
+import java.util.*;
+class Dice{
+    public int rollDice(){
+    int minimum=1;
+    int maximum=6;
+    int b=(int)(Math.random() * (maximum - minimum + 1) + minimum);
+    return b;
+}
+}
+
+PLAYER CLASS 
+
+class Player{
+    private int playerPos;
+    private String playerName;
+    public Player(int playerPos,String playerName){
+        this.playerPos=playerPos;
+        this.playerName=playerName;
+    }
+    public int getPlayerPos(){
+        return playerPos;
+    }
+    public String getPlayerName(){
+        return playerName;
+    }
+    public void setPlayerPos(int value){
+        playerPos = value;
+    }
+}
+
+BOARD CLASS
+
+class Board{
+    private int startingPoint;
+    private int endingPoint;
+    private Dice dice;
+    private HashMap<Integer,Integer> snakePos;
+    private HashMap<Integer,Integer> ladderPos;
+    private Queue<Player> playerTurn;
+    public Board(int startingPoint,int endingPoint,Dice dice,HashMap<Integer,Integer> snakePos,HashMap<Integer,Integer> ladderPos,Queue<Player> playerTurn){
+        this.startingPoint=startingPoint;
+        this.endingPoint=endingPoint;
+        this.dice=dice;
+        this.snakePos=snakePos;
+        this.ladderPos=ladderPos;
+        this.playerTurn=playerTurn;
+    }
+    public void game(){
+        int i=0;
+        while(i==0){
+        Player p1=playerTurn.poll();
+        int oldPos=p1.getPlayerPos();
+        int newPos=oldPos+dice.rollDice();
+        if(newPos==endingPoint){
+            System.out.println(p1.getPlayerName()+" "+"Won the Game");
+            break;
+        }
+        else if(snakePos.containsKey(newPos)){
+            newPos = newPos-snakePos.get(newPos);
+            System.out.println(p1.getPlayerName()+" "+oldPos+" "+newPos);
+            p1.setPlayerPos(newPos);
+        }
+        else if(ladderPos.containsKey(newPos)){
+            newPos = newPos+ladderPos.get(newPos);
+            System.out.println(p1.getPlayerName()+" "+oldPos+" "+newPos);
+            p1.setPlayerPos(newPos);
+        }
+        else if(newPos>endingPoint){
+            System.out.println(p1.getPlayerName()+" Try Again");
+        }
+        else{
+            System.out.println(p1.getPlayerName()+" "+oldPos+" "+newPos);
+            p1.setPlayerPos(newPos);
+        }
+        playerTurn.add(p1);
+       }
+    }
+}
+
+
+MAIN  
+
+class Main{
+    public static void main(String args[]){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Size");
+        int endingPoint = sc.nextInt();
+        sc.nextLine();
+        System.out.println("No of Snakes:");
+        HashMap<Integer,Integer> snake = new HashMap<>();
+        int n = sc.nextInt();
+        sc.nextLine();
+        for(int i=0; i<n; i++){
+            String [] s=sc.nextLine().split(" ");
+            snake.put(Integer.parseInt(s[0]),Integer.parseInt(s[1]));
+        }
+        System.out.println("No of Ladders:");
+        HashMap<Integer,Integer> ladder = new HashMap<>();
+        int p = sc.nextInt();
+        sc.nextLine();
+        for(int i=0; i<p; i++){
+            String [] l=sc.nextLine().split(" ");
+            ladder.put(Integer.parseInt(l[0]),Integer.parseInt(l[1]));
+        }
+        System.out.println("No of Players:");
+        Queue<Player> playerTurn = new LinkedList<>();
+        int k = sc.nextInt();
+        sc.nextLine();
+        for(int i=0; i<k; i++){
+            String name = sc.nextLine();
+            Player p2=new Player(0,name);
+            playerTurn.add(p2);
+        }
+        Dice dice=new Dice();
+        Board b = new Board(1,endingPoint,dice,snake,ladder,playerTurn);
+        b.game();
+    }
+}
